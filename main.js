@@ -4,7 +4,7 @@ const grid = [];
 let cellSize;
 
 function setup() {
-	createCanvas(800, 400);
+	createCanvas(1600, 800);
 
 	for (let i = 0; i < gW; i++) {
 		const row = [];
@@ -14,7 +14,6 @@ function setup() {
 		grid.push(row);
 	}
 	cellSize = width/gW;
-
 }
 
 function draw() {
@@ -24,26 +23,40 @@ function draw() {
 		//}
 	//}
 
-	for (let i = 0; i < gW; i++) {
-		for (let j = 0; j < gH; j++) {
-			const x = i * cellSize;
-			const y = j * cellSize;
-			const cX = x + cellSize/2;
-			const cY = y + cellSize/2;
+	function wrapX(x) {
+		if (x <= 0) return gW - 1;
+		if (x > gW - 1) return 0;
+		return x;
+	}
 
-			square(x, y, cellSize);
-			//circle(cX, cY, 10)
-			line(
-				cX, cY, 
-				cX + grid[i][j].velocityVectors.e.velocity.x, 
-				cY + grid[i][j].velocityVectors.e.velocity.y);
+	function wrapY(y) {
+		if (y <= 0) return gH - 1;
+		if (y > gH - 1) return 0;
+		return y;
+	}
 
-			Object.values(grid[i][j].velocityVectors).forEach(v => {
-				v.applyForce(new p5.Vector(
-					Math.random() * (0.01 - -0.01) + -0.01, 
-					Math.random() * (0.01 - -0.01) + -0.01).mult(v.weight));
-				v.update();
-			})
+	for (let i = gW - 1; i > 0; i--) {
+		for (let j = gH - 1; j > 0; j--) {
+			const drawx = i * cellSize;
+			const drawy = j * cellSize;
+
+			square(drawx, drawy, cellSize);
+
+			// THIS IS STREAMING
+			// Note: Need to stream in the right flow direction. like.. 
+			// the current site's northern density gets its southern
+			// neighbor's northern density
+			grid[i][j].displacements.n = grid[i][wrapY(i+1)].displacements.n;
+			grid[i][j].displacements.ne = grid[wrapX(i-1)][wrapY(j+1)].displacements.ne;
+			grid[i][j].displacements.e = grid[wrapX(i-1)][j].displacements.e;
+			grid[i][j].displacements.se = grid[wrapX(i-1)][wrapY(j-1)].displacements.se;
+			grid[i][j].displacements.s = grid[i][wrapY(j-1)].displacements.s
+			grid[i][j].displacements.sw = grid[wrapX(i+1)][wrapY(j-1)].displacements.sw
+			grid[i][j].displacements.w = grid[wrapX(i+1)][j].displacements.sw
+			grid[i][j].displacements.nw = grid[wrapX(i+1)][wrapY(j+1)].displacements.nw
+
+			// THIS IS COLLIDING
+			grid[i][j].collide();
 		}
 	}
 }
