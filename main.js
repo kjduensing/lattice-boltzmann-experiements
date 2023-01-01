@@ -1,10 +1,10 @@
 const gW = 20;
-const gH = 10;
+const gH = 20;
 const grid = [];
 let cellSize;
 
 function setup() {
-	createCanvas(1600, 800);
+	createCanvas(800, 800);
 
 	for (let i = 0; i < gW; i++) {
 		const row = [];
@@ -14,6 +14,15 @@ function setup() {
 		grid.push(row);
 	}
 	cellSize = width/gW;
+
+
+	// Init fluid
+	//for (let i = gW - 1; i > 0; i--) {
+		//for (let j = gH - 1; j > 0; j--) {
+			//// setEquil takes velocity vector and density
+			//grid[i][j].setEquil(new p5.Vector(0, 0), 1);
+		//}
+	//}
 }
 
 let gridMouseX = 0;
@@ -38,14 +47,25 @@ function draw() {
 		if (y > gH - 1) return 0;
 		return y;
 	}
-
-	for (let i = gW - 1; i > 0; i--) {
-		for (let j = gH - 1; j > 0; j--) {
+	
+	for (let i = 0; i < gW; i++) {
+		for (let j = 0; j < gH; j++) {
 			const drawx = i * cellSize;
 			const drawy = j * cellSize;
 
 			square(drawx, drawy, cellSize);
 
+			//const boxSize = cellSize/9;
+			//for (let d = 0; d < f; d++) {
+				//square(drawx + boxSize * (d % 9) , drawy + boxSize * (d / 9), boxSize)
+			//}
+		}
+	}
+
+	//for (let i = gW - 1; i > 0; i--) {
+		//for (let j = gH - 1; j > 0; j--) {
+	for (let i = 0; i < gW; i++) {
+		for (let j = 0; j < gH; j++) {
 			// THIS IS COLLIDING
 			grid[i][j].collide();
 
@@ -71,9 +91,9 @@ function draw() {
 	}
 
 	// Move left-moving densities to left (not sure why)
-	for (let y = 1; y < gH - 2; y++) {
-			grid[gW-1][y].displacements.w = grid[gW-2][y].displacements.w;
-			grid[gW-1][y].displacements.nw = grid[gW-2][y].displacements.nw;
-			grid[gW-1][y].displacements.sw = grid[gW-2][y].displacements.sw;
-	}
+	//for (let y = 1; y < gH - 2; y++) {
+			//grid[gW-1][y].displacements.w = grid[gW-2][y].displacements.w;
+			//grid[gW-1][y].displacements.nw = grid[gW-2][y].displacements.nw;
+			//grid[gW-1][y].displacements.sw = grid[gW-2][y].displacements.sw;
+	//}
 }

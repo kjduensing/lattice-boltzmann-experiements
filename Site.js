@@ -1,17 +1,19 @@
 class Displacement {
-	constructor(weight, velocityVector) {
+	constructor(weight, allowedVelocityVector) {
 		this.weight = weight;
 		this.density = 1;
-		this.velocity = velocityVector;
+		this.velocity = allowedVelocityVector;
 	}
 
 	equilibrate = (macroDensity, macroVelocity) => {
 
+		// No idea what this does, except it's the 1/T in the equations...
+		const omega = 1/(3*1.05+0.5)
 		const a = macroDensity * this.weight;
-		const b = 1 + this.velocity.mult(3).dot(macroVelocity);
-		const c = (9/2) * Math.pow(this.velocity.dot(macroVelocity), 2);
+		const b = 1 + this.velocity.copy().mult(3).dot(macroVelocity);
+		const c = (9/2) * Math.pow(this.velocity.copy().dot(macroVelocity), 2);
 		const d = (3/2) * macroVelocity.magSq();
-		
+
 		//console.log(a)
 		//console.log(b)
 		//console.log(c)
@@ -21,17 +23,13 @@ class Displacement {
 		const equilibriumDensity = 
 			macroDensity * this.weight * 
 			(
-				1 + this.velocity.mult(3).dot(macroVelocity) +
+				1 + this.velocity.copy().mult(3).dot(macroVelocity) +
 				(9/2) * Math.pow(this.velocity.dot(macroVelocity), 2) -
 				(3/2) * macroVelocity.magSq()
 			);
 
-		// No idea what this does, except it's the 1/T in the equations...
-		const omega = 1/(3*0.015+0.5)
-	
-			//console.log(equilibrium)
-		this.density += omega * (equilibriumDensity - this.density);
-		debugger
+		const newDensity = omega * (equilibriumDensity - this.density);
+		return newDensity;
 	}
 }
 
@@ -76,15 +74,15 @@ class Site {
 
 	macroYVelocity = () => {
 		return ((
-			// All the downward y directions
-			this.displacements.s.density +
-			this.displacements.se.density +
-			this.displacements.sw.density
-		) - (
 			// All the upward y directions
 			this.displacements.n.density +
 			this.displacements.ne.density + 
 			this.displacements.nw.density
+		) - (
+			// All the downward y directions
+			this.displacements.s.density +
+			this.displacements.se.density +
+			this.displacements.sw.density
 		)) / this.density();
 	}
 
@@ -99,8 +97,15 @@ class Site {
 
 	collide = () => {
 		Object.values(this.displacements).forEach((d) => {
-			d.equilibrate(this.density(), this.macroFlow());
+			d.density += d.equilibrate(this.density(), this.macroFlow());
 		})
 	}
+
+	setEquil = (velocityVector, density) => {
+		Object.values(this.displacements).forEach((d) => {
+			d.density = d.equilibrate(density, velocityVector);
+		})
+	}
+
 }
 
