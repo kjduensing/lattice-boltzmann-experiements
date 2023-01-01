@@ -1,41 +1,25 @@
-class WeightedVelocityVector {
-	constructor(x, y, w) {
-		this.x = x;
-		this.y = y;
-		this.weight = w; // aka density
-		this.mass = 0.01;
-		this.acceleration = createVector(0,0);
-		this.velocity = createVector(x,y);
-		this.position = createVector(x, y);
-	}
-
-	applyForce(forceVector) {
-		let force = forceVector.copy()
-		force = force.div(this.mass);
-		this.acceleration.add(force);
-	}
-
-	update() {
-		// Velocity changes according to acceleration
-		this.velocity.add(this.acceleration);
-		// position changes by velocity
-		//this.position.add(this.velocity);
-		// We must clear acceleration each frame
-		this.acceleration.mult(0);
-	}
-}
-
 class Displacement {
 	constructor(weight, velocityVector) {
 		this.weight = weight;
-		this.equil = 1;
 		this.density = 1;
-		this.velocity = velocityVector
+		this.velocity = velocityVector;
 	}
 
-	equilibrate(density, macroVelocity) {
-		const equilibrium = 
-			density * this.weight * 
+	equilibrate = (macroDensity, macroVelocity) => {
+
+		const a = macroDensity * this.weight;
+		const b = 1 + this.velocity.mult(3).dot(macroVelocity);
+		const c = (9/2) * Math.pow(this.velocity.dot(macroVelocity), 2);
+		const d = (3/2) * macroVelocity.magSq();
+		
+		//console.log(a)
+		//console.log(b)
+		//console.log(c)
+		//console.log(d)
+		//console.log()
+
+		const equilibriumDensity = 
+			macroDensity * this.weight * 
 			(
 				1 + this.velocity.mult(3).dot(macroVelocity) +
 				(9/2) * Math.pow(this.velocity.dot(macroVelocity), 2) -
@@ -43,14 +27,17 @@ class Displacement {
 			);
 
 		// No idea what this does, except it's the 1/T in the equations...
-	  const omega = 1/(3*1+0.5)
+		const omega = 1/(3*0.015+0.5)
 	
-		this.equil += omega * (equilibrium - this.equil);
+			//console.log(equilibrium)
+		this.density += omega * (equilibriumDensity - this.density);
+		debugger
 	}
 }
 
 class Site {
 	constructor(x, y) {
+		this.isBarrier = false;
 		this.x = x;
 		this.y = y;
 		this.displacements = {
@@ -61,23 +48,20 @@ class Site {
 			w: new Displacement(1/9, new p5.Vector(-1, 0)),
 			ne: new Displacement(1/36, new p5.Vector(1, -1)),
 			se: new Displacement(1/36, new p5.Vector(1, 1)),
-			sw: new Displacement(1/36, new p5.Vector(-1, 1)),
+			sw: new Displacement(1/36, new p5.Vector(1, -1)),
 			nw: new Displacement(1/36, new p5.Vector(-1, -1)),
 		}
-
-		//this.densityProbabilities = {
-			//c: 1, n: 1, e: 1, s: 1, w: 1, ne: 1, se: 1, sw: 1, nw: 1,
-		//}
 	}
-	
-	density() {
+
+	density = () => {
 		return Object.values(this.displacements).reduce((acc, d) => { 
-			acc += d.density; acc; 
+			acc += d.density; 
+			return acc; 
 		}, 0)
 	}
 
-	macroXVelocity() {
-		return (
+	macroXVelocity = () => {
+		return ((
 			// All the rightward x directions
 			this.displacements.e.density +
 			this.displacements.ne.density +
@@ -87,11 +71,11 @@ class Site {
 			this.displacements.w.density+
 			this.displacements.nw.density + 
 			this.displacements.sw.density
-		) / this.density();
+		)) / this.density();
 	}
 
-	macroYVelocity() {
-		return (
+	macroYVelocity = () => {
+		return ((
 			// All the downward y directions
 			this.displacements.s.density +
 			this.displacements.se.density +
@@ -101,16 +85,21 @@ class Site {
 			this.displacements.n.density +
 			this.displacements.ne.density + 
 			this.displacements.nw.density
-		) / this.density();
+		)) / this.density();
 	}
 
-	macroFlow() {
-		return new p5.Vector(macroXVelocity(), macroYVelocity());
+	macroFlow = () => {
+		return new p5.Vector(this.macroXVelocity(), this.macroYVelocity());
 	}
-
-	collide() {
+	
+	bounce = () => {
 		Object.values(this.displacements).forEach((d) => {
-			d.equilibrate(this.density(), new p5.Vector(this.macroXVelocity(), this.macroYVelocity()));
+		})
+	}
+
+	collide = () => {
+		Object.values(this.displacements).forEach((d) => {
+			d.equilibrate(this.density(), this.macroFlow());
 		})
 	}
 }
