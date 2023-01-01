@@ -3,6 +3,8 @@ const gH = 20;
 const grid = [];
 let cellSize;
 
+let showStats = false;
+
 function setup() {
 	createCanvas(800, 800);
 
@@ -20,7 +22,8 @@ function setup() {
 	for (let i = 0; i < gW; i++) {
 		for (let j = 0; j < gH; j++) {
 			// setEquil takes velocity vector and density
-			grid[i][j].setEquil(new p5.Vector(0, 0), 1);
+			// Setting an x flow between 0 and 0.120 works the best
+			grid[i][j].setEquil(new p5.Vector(0.120, 0), 1);
 		}
 	}
 }
@@ -28,9 +31,14 @@ function setup() {
 let gridMouseX = 0;
 let gridMouseY = 0;
 
-function mouseClicked() {
+function mouseDragged() {
 	gridMouseX = Math.floor(map(mouseX, 0, width, 0, gW));
 	gridMouseY = Math.floor(map(mouseY, 0, height, 0, gH));
+	showStats = true;
+}
+
+function mouseReleased() {
+	showStats = false;
 }
 
 function draw() {
@@ -82,12 +90,15 @@ function draw() {
 			grid[i][j].displacements.w = grid[wrapX(i+1)][j].displacements.sw
 			grid[i][j].displacements.nw = grid[wrapX(i+1)][wrapY(j+1)].displacements.nw
 
-			textSize(16);
-			text(`[${gridMouseX}, ${gridMouseY}]:`, 10, 20)
-			text(`Density: ${grid[i][j].density().toFixed(2)}`, 16, 40)
-			text(`Velocity (X): ${grid[i][j].macroXVelocity().toFixed(2)}`, 16, 60)
-			text(`Velocity (Y): ${grid[i][j].macroYVelocity().toFixed(2)}`, 16, 80)
 		}
+	}
+	
+	if (!showStats) {
+		textSize(16);
+		text(`[${gridMouseX}, ${gridMouseY}]:`, 10, 10)
+		text(`Density: ${grid[gridMouseX][gridMouseY].density().toFixed(2)}`, 10 + 10, 10 + 20)
+		text(`Velocity (X): ${grid[gridMouseX][gridMouseY].velocity.x.toFixed(2)}`, 10 + 10, 10 + 40)
+		text(`Velocity (Y): ${grid[gridMouseX][gridMouseY].velocity.y.toFixed(2)}`, 10 + 10, 10 + 60)
 	}
 
 	// Move left-moving densities to left (not sure why)

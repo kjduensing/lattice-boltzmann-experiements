@@ -36,6 +36,7 @@ class Site {
 		// No idea what this does, except it's the 1/T in the equations...
 		this.OMEGA = 1/(3*1.05+0.5)
 
+		this.velocity = new p5.Vector(0,0);
 		this.isBarrier = false;
 		this.x = x;
 		this.y = y;
@@ -97,17 +98,18 @@ class Site {
 	}
 
 	collide = () => {
+		this.velocity = new p5.Vector(this.macroXVelocity(), this.macroYVelocity());
 		Object.values(this.displacements).forEach((d) => {
-			const equilDensity = d.equilibrate(this.density(), this.macroFlow());
+			const equilDensity = d.equilibrate(this.density(), this.velocity);
 			d.density += this.OMEGA * (equilDensity - d.density)
 		})
 	}
 
 	setEquil = (velocityVector, density) => {
 		Object.values(this.displacements).forEach((d) => {
-			d.density = d.equilibrate(density, velocityVector);
+			this.velocity = velocityVector.copy();
+			d.density = d.equilibrate(density, this.velocity);
 		})
 	}
-
 }
 
