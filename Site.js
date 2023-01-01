@@ -1,14 +1,12 @@
 class Displacement {
 	constructor(weight, allowedVelocityVector) {
 		this.weight = weight;
-		this.density = 1;
+		//this.density = 1;
 		this.velocity = allowedVelocityVector;
 	}
 
 	equilibrate = (macroDensity, macroVelocity) => {
 
-		// No idea what this does, except it's the 1/T in the equations...
-		const omega = 1/(3*1.05+0.5)
 		const a = macroDensity * this.weight;
 		const b = 1 + this.velocity.copy().mult(3).dot(macroVelocity);
 		const c = (9/2) * Math.pow(this.velocity.copy().dot(macroVelocity), 2);
@@ -28,13 +26,16 @@ class Displacement {
 				(3/2) * macroVelocity.magSq()
 			);
 
-		const newDensity = omega * (equilibriumDensity - this.density);
-		return newDensity;
+		return equilibriumDensity;
 	}
 }
 
 class Site {
+
 	constructor(x, y) {
+		// No idea what this does, except it's the 1/T in the equations...
+		this.OMEGA = 1/(3*1.05+0.5)
+
 		this.isBarrier = false;
 		this.x = x;
 		this.y = y;
@@ -97,7 +98,8 @@ class Site {
 
 	collide = () => {
 		Object.values(this.displacements).forEach((d) => {
-			d.density += d.equilibrate(this.density(), this.macroFlow());
+			const equilDensity = d.equilibrate(this.density(), this.macroFlow());
+			d.density += this.OMEGA * (equilDensity - d.density)
 		})
 	}
 

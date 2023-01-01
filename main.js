@@ -17,12 +17,12 @@ function setup() {
 
 
 	// Init fluid
-	//for (let i = gW - 1; i > 0; i--) {
-		//for (let j = gH - 1; j > 0; j--) {
-			//// setEquil takes velocity vector and density
-			//grid[i][j].setEquil(new p5.Vector(0, 0), 1);
-		//}
-	//}
+	for (let i = 0; i < gW; i++) {
+		for (let j = 0; j < gH; j++) {
+			// setEquil takes velocity vector and density
+			grid[i][j].setEquil(new p5.Vector(0, 0), 1);
+		}
+	}
 }
 
 let gridMouseX = 0;
