@@ -37,6 +37,7 @@ class Site {
 		this.OMEGA = 1/(3*1.05+0.5)
 
 		this.velocity = new p5.Vector(0,0);
+		this.density = 1;
 		this.isBarrier = false;
 		this.x = x;
 		this.y = y;
@@ -53,7 +54,7 @@ class Site {
 		}
 	}
 
-	density = () => {
+	calcDensity = () => {
 		return Object.values(this.displacements).reduce((acc, d) => { 
 			acc += d.density; 
 			return acc; 
@@ -68,10 +69,10 @@ class Site {
 			this.displacements.se.density
 		) - (
 			// All the leftward x directions
-			this.displacements.w.density+
+			this.displacements.w.density +
 			this.displacements.nw.density + 
 			this.displacements.sw.density
-		)) / this.density();
+		)) / this.density;
 	}
 
 	macroYVelocity = () => {
@@ -85,7 +86,7 @@ class Site {
 			this.displacements.s.density +
 			this.displacements.se.density +
 			this.displacements.sw.density
-		)) / this.density();
+		)) / this.density;
 	}
 
 	macroFlow = () => {
@@ -98,18 +99,23 @@ class Site {
 	}
 
 	collide = () => {
+		this.density = this.calcDensity();
 		this.velocity = new p5.Vector(this.macroXVelocity(), this.macroYVelocity());
 		Object.values(this.displacements).forEach((d) => {
-			const equilDensity = d.equilibrate(this.density(), this.velocity);
+			const equilDensity = d.equilibrate(this.density, this.velocity);
 			d.density += this.OMEGA * (equilDensity - d.density)
 		})
+		//console.log(`collide macrox: ${this.macroXVelocity()}`)
 	}
 
 	setEquil = (velocityVector, density) => {
+		this.density = density;
+		this.velocity = velocityVector.copy();
 		Object.values(this.displacements).forEach((d) => {
-			this.velocity = velocityVector.copy();
-			d.density = d.equilibrate(density, this.velocity);
+			d.density = d.equilibrate(this.density, this.velocity);
+			console.log(d.density)
 		})
+		console.log(`macrox: ${this.macroXVelocity()}`)
 	}
 }
 

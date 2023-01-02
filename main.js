@@ -96,7 +96,7 @@ function draw() {
 	if (!showStats) {
 		textSize(16);
 		text(`[${gridMouseX}, ${gridMouseY}]:`, 10, 10)
-		text(`Density: ${grid[gridMouseX][gridMouseY].density().toFixed(2)}`, 10 + 10, 10 + 20)
+		text(`Density: ${grid[gridMouseX][gridMouseY].density.toFixed(2)}`, 10 + 10, 10 + 20)
 		text(`Velocity (X): ${grid[gridMouseX][gridMouseY].velocity.x.toFixed(2)}`, 10 + 10, 10 + 40)
 		text(`Velocity (Y): ${grid[gridMouseX][gridMouseY].velocity.y.toFixed(2)}`, 10 + 10, 10 + 60)
 	}
