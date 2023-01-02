@@ -1,16 +1,16 @@
 class Displacement {
 	constructor(weight, allowedVelocityVector) {
 		this.weight = weight;
-		//this.density = 1;
+		this.density = 0;
 		this.velocity = allowedVelocityVector;
 	}
 
 	equilibrate = (macroDensity, macroVelocity) => {
 
-		const a = macroDensity * this.weight;
-		const b = 1 + this.velocity.copy().mult(3).dot(macroVelocity);
-		const c = (9/2) * Math.pow(this.velocity.copy().dot(macroVelocity), 2);
-		const d = (3/2) * macroVelocity.magSq();
+		//const a = macroDensity * this.weight;
+		//const b = 1 + this.velocity.copy().mult(3).dot(macroVelocity);
+		//const c = (9/2) * Math.pow(this.velocity.copy().dot(macroVelocity), 2);
+		//const d = (3/2) * macroVelocity.magSq();
 
 		//console.log(a)
 		//console.log(b)
@@ -34,7 +34,7 @@ class Site {
 
 	constructor(x, y) {
 		// No idea what this does, except it's the 1/T in the equations...
-		this.OMEGA = 1/(3*1.05+0.5)
+		this.OMEGA = 1/(3*0.05+0.5)
 
 		this.velocity = new p5.Vector(0,0);
 		this.density = 1;
@@ -113,9 +113,7 @@ class Site {
 		this.velocity = velocityVector.copy();
 		Object.values(this.displacements).forEach((d) => {
 			d.density = d.equilibrate(this.density, this.velocity);
-			console.log(d.density)
 		})
-		console.log(`macrox: ${this.macroXVelocity()}`)
 	}
 }
 

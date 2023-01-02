@@ -23,7 +23,8 @@ function setup() {
 		for (let j = 0; j < gH; j++) {
 			// setEquil takes velocity vector and density
 			// Setting an x flow between 0 and 0.120 works the best
-			grid[i][j].setEquil(new p5.Vector(0.120, 0), 1);
+			//grid[i][j].setEquil(new p5.Vector(0.120, 0), 1);
+			grid[i][j].setEquil(new p5.Vector(1, 0), 1);
 		}
 	}
 }
@@ -87,7 +88,7 @@ function draw() {
 			grid[i][j].displacements.se = grid[wrapX(i-1)][wrapY(j-1)].displacements.se;
 			grid[i][j].displacements.s = grid[i][wrapY(j-1)].displacements.s
 			grid[i][j].displacements.sw = grid[wrapX(i+1)][wrapY(j-1)].displacements.sw
-			grid[i][j].displacements.w = grid[wrapX(i+1)][j].displacements.sw
+			grid[i][j].displacements.w = grid[wrapX(i+1)][j].displacements.w
 			grid[i][j].displacements.nw = grid[wrapX(i+1)][wrapY(j+1)].displacements.nw
 
 		}
@@ -96,9 +97,10 @@ function draw() {
 	if (!showStats) {
 		textSize(16);
 		text(`[${gridMouseX}, ${gridMouseY}]:`, 10, 10)
-		text(`Density: ${grid[gridMouseX][gridMouseY].density.toFixed(2)}`, 10 + 10, 10 + 20)
-		text(`Velocity (X): ${grid[gridMouseX][gridMouseY].velocity.x.toFixed(2)}`, 10 + 10, 10 + 40)
-		text(`Velocity (Y): ${grid[gridMouseX][gridMouseY].velocity.y.toFixed(2)}`, 10 + 10, 10 + 60)
+		text(`Omega: ${grid[gridMouseX][gridMouseY].OMEGA.toFixed(4)}`, 10 + 10, 10 + 20)
+		text(`Density: ${grid[gridMouseX][gridMouseY].density.toFixed(4)}`, 10 + 10, 10 + 40)
+		text(`Velocity (X): ${grid[gridMouseX][gridMouseY].velocity.x.toFixed(4)}`, 10 + 10, 10 + 60)
+		text(`Velocity (Y): ${grid[gridMouseX][gridMouseY].velocity.y.toFixed(4)}`, 10 + 10, 10 + 80)
 	}
 
 	// Move left-moving densities to left (not sure why)
