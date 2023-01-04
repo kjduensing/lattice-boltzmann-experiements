@@ -1,5 +1,5 @@
 const gW = 20;
-const gH = 20;
+const gH = 10;
 const grid = [];
 let cellSize;
 
@@ -9,11 +9,11 @@ function setup() {
 	createCanvas(800, 800);
 
 	for (let i = 0; i < gW; i++) {
-		const row = [];
+		const col = [];
 		for (let j = 0; j < gH; j++) {
-			row.push(new Site());
+			col.push(new Site());
 		}
-		grid.push(row);
+		grid.push(col);
 	}
 	cellSize = width/gW;
 
@@ -24,7 +24,7 @@ function setup() {
 			// setEquil takes velocity vector and density
 			// Setting an x flow between 0 and 0.120 works the best
 			//grid[i][j].setEquil(new p5.Vector(0.120, 0), 1);
-			grid[i][j].setEquil(new p5.Vector(1, 0), 1);
+			grid[i][j].setEquil(new p5.Vector(0, 0.07), 1);
 		}
 	}
 }
@@ -40,6 +40,22 @@ function mouseDragged() {
 
 function mouseReleased() {
 	showStats = false;
+}
+
+function drawArrow(base, vec, myColor) {
+  push();
+  stroke(myColor);
+  strokeWeight(2);
+  fill(myColor);
+  translate(base.x, base.y);
+  line(0, 0, vec.x, vec.y);
+  rotate(vec.heading());
+  let arrowSize = 4;
+  translate(vec.mag() - arrowSize, 0);
+  //triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
+	line(0, -arrowSize/2, arrowSize, 0);
+	line(0, arrowSize/2, arrowSize, 0);
+  pop();
 }
 
 function draw() {
@@ -64,6 +80,8 @@ function draw() {
 
 			square(drawx, drawy, cellSize);
 
+			drawArrow(createVector(drawx + cellSize/2, drawy + cellSize/2), grid[i][j].velocity, "#f00");
+
 			//const boxSize = cellSize/9;
 			//for (let d = 0; d < f; d++) {
 				//square(drawx + boxSize * (d % 9) , drawy + boxSize * (d / 9), boxSize)
@@ -71,29 +89,40 @@ function draw() {
 		}
 	}
 
-	//for (let i = gW - 1; i > 0; i--) {
-		//for (let j = gH - 1; j > 0; j--) {
+	// Set boundaries
+	for (let i = 0; i < gW; i++) {
+		grid[i][0].setEquil(createVector(0.120, 0), 1);
+		grid[i][gH-1].setEquil(createVector(0.120, 0), 1);
+	}
+
+	for (let j = 0; j < gH; j++) {
+		grid[0][j].setEquil(createVector(0.120, 0), 1);
+		grid[gW-1][j].setEquil(createVector(0.120, 0), 1);
+	}
+
+	// THIS IS COLLIDING
 	for (let i = 0; i < gW; i++) {
 		for (let j = 0; j < gH; j++) {
-			// THIS IS COLLIDING
 			grid[i][j].collide();
-
-			// THIS IS STREAMING
-			// Note: Need to stream in the right flow direction. like.. 
-			// the current site's northern density gets its southern
-			// neighbor's northern density, etc...
-			grid[i][j].displacements.n = grid[i][wrapY(i+1)].displacements.n;
-			grid[i][j].displacements.ne = grid[wrapX(i-1)][wrapY(j+1)].displacements.ne;
-			grid[i][j].displacements.e = grid[wrapX(i-1)][j].displacements.e;
-			grid[i][j].displacements.se = grid[wrapX(i-1)][wrapY(j-1)].displacements.se;
-			grid[i][j].displacements.s = grid[i][wrapY(j-1)].displacements.s
-			grid[i][j].displacements.sw = grid[wrapX(i+1)][wrapY(j-1)].displacements.sw
-			grid[i][j].displacements.w = grid[wrapX(i+1)][j].displacements.w
-			grid[i][j].displacements.nw = grid[wrapX(i+1)][wrapY(j+1)].displacements.nw
-
 		}
 	}
 	
+	for (let i = 1; i < gW - 1; i++) {
+		for (let j = 1; j < gH - 1; j++) {
+			// Note: Need to stream in the right flow direction. like.. 
+			// the current site's northern density gets its southern
+			// neighbor's northern density, etc...
+			grid[i][j].displacements.n = grid[i][(j+1)].displacements.n;
+			grid[i][j].displacements.ne = grid[(i-1)][wrapY(j+1)].displacements.ne;
+			grid[i][j].displacements.e = grid[(i-1)][j].displacements.e;
+			grid[i][j].displacements.se = grid[(i-1)][(j-1)].displacements.se;
+			grid[i][j].displacements.s = grid[i][(j-1)].displacements.s
+			grid[i][j].displacements.sw = grid[(i+1)][(j-1)].displacements.sw
+			grid[i][j].displacements.w = grid[(i+1)][j].displacements.w
+			grid[i][j].displacements.nw = grid[(i+1)][(j+1)].displacements.nw
+		}
+	}
+
 	if (!showStats) {
 		textSize(16);
 		text(`[${gridMouseX}, ${gridMouseY}]:`, 10, 10)
@@ -102,11 +131,4 @@ function draw() {
 		text(`Velocity (X): ${grid[gridMouseX][gridMouseY].velocity.x.toFixed(4)}`, 10 + 10, 10 + 60)
 		text(`Velocity (Y): ${grid[gridMouseX][gridMouseY].velocity.y.toFixed(4)}`, 10 + 10, 10 + 80)
 	}
-
-	// Move left-moving densities to left (not sure why)
-	//for (let y = 1; y < gH - 2; y++) {
-			//grid[gW-1][y].displacements.w = grid[gW-2][y].displacements.w;
-			//grid[gW-1][y].displacements.nw = grid[gW-2][y].displacements.nw;
-			//grid[gW-1][y].displacements.sw = grid[gW-2][y].displacements.sw;
-	//}
 }

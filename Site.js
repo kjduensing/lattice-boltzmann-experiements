@@ -1,7 +1,7 @@
 class Displacement {
 	constructor(weight, allowedVelocityVector) {
 		this.weight = weight;
-		this.density = 0;
+		this.density = 1;
 		this.velocity = allowedVelocityVector;
 	}
 
@@ -34,7 +34,7 @@ class Site {
 
 	constructor(x, y) {
 		// No idea what this does, except it's the 1/T in the equations...
-		this.OMEGA = 1/(3*0.05+0.5)
+		this.OMEGA = 1/(3*0.15+0.5)
 
 		this.velocity = new p5.Vector(0,0);
 		this.density = 1;
