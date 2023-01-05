@@ -90,52 +90,82 @@ function paint() {
 
 
 			// NW
-			//push();
-			//fill(mapColor(grid[i][j].displacements.nw.density));
-			//square(0, 0, boxSize);
-			//pop();
-			//// N
-			//push();
-			//fill(mapColor(grid[i][j].displacements.n.density));
-			//square(1 * boxSize, 0, boxSize);
-			//pop();
-			//// NE
-			//push();
-			//fill(mapColor(grid[i][j].displacements.ne.density));
-			//square(2 * boxSize, 0, boxSize);
-			//pop();
-			//// W
-			//push();
-			//fill(mapColor(grid[i][j].displacements.w.density));
-			//square(0, 1 * boxSize, boxSize);
-			//pop();
-			//// C 
-			//push();
-			//fill(mapColor(grid[i][j].displacements.c.density));
-			//square(1 * boxSize, 1 * boxSize, boxSize);
-			//pop();
-			//// E
-			//push();
-			//fill(mapColor(grid[i][j].displacements.e.density));
-			//square(2 * boxSize, 1 * boxSize, boxSize);
-			//pop();
-			//// SW
-			//push();
-			//fill(mapColor(grid[i][j].displacements.sw.density));
-			//square(0, 1 * boxSize, boxSize);
-			//pop();
-			//// S 
-			//push();
-			//fill(mapColor(grid[i][j].displacements.s.density));
-			//square(1 * boxSize, 2 * boxSize, boxSize);
-			//pop();
-			//// SE
-			//push();
-			//fill(mapColor(grid[i][j].displacements.se.density));
-			//square(2 * boxSize, 2 * boxSize, boxSize);
-			//pop();
+			push();
+			fill(mapColor(grid[i][j].displacements.nw.density), 100);
+			square(0, 0, boxSize);
+			pop();
+			// N
+			push();
+			fill(mapColor(grid[i][j].displacements.n.density), 100);
+			square(1 * boxSize, 0, boxSize);
+			pop();
+			// NE
+			push();
+			fill(mapColor(grid[i][j].displacements.ne.density), 100);
+			square(2 * boxSize, 0, boxSize);
+			pop();
+			// W
+			push();
+			fill(mapColor(grid[i][j].displacements.w.density), 100);
+			square(0, 1 * boxSize, boxSize);
+			pop();
+			// C 
+			push();
+			fill(mapColor(grid[i][j].displacements.c.density), 100);
+			square(1 * boxSize, 1 * boxSize, boxSize);
+			pop();
+			// E
+			push();
+			fill(mapColor(grid[i][j].displacements.e.density), 100);
+			square(2 * boxSize, 1 * boxSize, boxSize);
+			pop();
+			// SW
+			push();
+			fill(mapColor(grid[i][j].displacements.sw.density), 100);
+			square(0, 1 * boxSize, boxSize);
+			pop();
+			// S 
+			push();
+			fill(mapColor(grid[i][j].displacements.s.density), 100);
+			square(1 * boxSize, 2 * boxSize, boxSize);
+			pop();
+			// SE
+			push();
+			fill(mapColor(grid[i][j].displacements.se.density), 100);
+			square(2 * boxSize, 2 * boxSize, boxSize);
+			pop();
 
 			pop();
+		}
+	}
+}
+
+function stream() {
+	for (let x = 1; x < gW - 1; x++) {
+		for (let y = 1; y < gH - 1; y++) {
+			grid[x][y].displacements.n = grid[x][(y+1)].displacements.n;
+			grid[x][y].displacements.nw = grid[(x+1)][(y+1)].displacements.nw
+		}
+	}
+
+	for (let x = gW - 2; x > 0; x--) {
+		for (let y = 1; y < gH - 1; y++) {
+			grid[x][y].displacements.e = grid[(x-1)][y].displacements.e;
+			grid[x][y].displacements.ne = grid[(x-1)][(y+1)].displacements.ne;
+		}
+	}
+
+	for (let x = gW - 2; x > 0; x--) {
+		for (let y = gH - 2; y > 0; y--) {
+			grid[x][y].displacements.s = grid[x][(y-1)].displacements.s
+			grid[x][y].displacements.se = grid[(x-1)][(y-1)].displacements.se;
+		}
+	}
+
+	for (let x = 1; x < gW - 1; x++) {
+		for (let y = gH - 2; y > 0; y--) {
+			grid[x][y].displacements.w = grid[(x+1)][y].displacements.w
+			grid[x][y].displacements.sw = grid[(x+1)][(y-1)].displacements.sw
 		}
 	}
 }
@@ -143,18 +173,6 @@ function paint() {
 function draw() {
 	strokeWeight(0.5)
 	background(255);
-
-	function wrapX(x) {
-		if (x <= 0) return gW - 1;
-		if (x > gW - 1) return 0;
-		return x;
-	}
-
-	function wrapY(y) {
-		if (y <= 0) return gH - 1;
-		if (y > gH - 1) return 0;
-		return y;
-	}
 
 	paint();
 
@@ -169,7 +187,7 @@ function draw() {
 		grid[gW-1][j].setEquil(createVector(0.120, 0), 1);
 	}
 
-	for (let x = 0; x < 20; x++) {
+	for (let x = 0; x < 40; x++) {
 		// THIS IS COLLIDING
 		for (let i = 0; i < gW; i++) {
 			for (let j = 0; j < gH; j++) {
@@ -177,21 +195,7 @@ function draw() {
 			}
 		}
 
-		for (let i = 1; i < gW - 1; i++) {
-			for (let j = 1; j < gH - 1; j++) {
-				// Note: Need to stream in the right flow direction. like.. 
-				// the current site's northern density gets its southern
-				// neighbor's northern density, etc...
-				grid[i][j].displacements.n = grid[i][(j+1)].displacements.n;
-				grid[i][j].displacements.ne = grid[(i-1)][(j+1)].displacements.ne;
-				grid[i][j].displacements.e = grid[(i-1)][j].displacements.e;
-				grid[i][j].displacements.se = grid[(i-1)][(j-1)].displacements.se;
-				grid[i][j].displacements.s = grid[i][(j-1)].displacements.s
-				grid[i][j].displacements.sw = grid[(i+1)][(j-1)].displacements.sw
-				grid[i][j].displacements.w = grid[(i+1)][j].displacements.w
-				grid[i][j].displacements.nw = grid[(i+1)][(j+1)].displacements.nw
-			}
-		}
+		stream();
 	}
 
 	textSize(16);
