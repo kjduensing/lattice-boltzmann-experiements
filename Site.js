@@ -34,7 +34,7 @@ class Site {
 
 	constructor(x, y) {
 		// No idea what this does, except it's the 1/T in the equations...
-		this.OMEGA = 1/(3*0.15+0.5)
+		this.OMEGA = 1/(3*0.020+0.5)
 
 		this.velocity = new p5.Vector(0,0);
 		this.density = 1;
@@ -49,7 +49,7 @@ class Site {
 			w: new Displacement(1/9, new p5.Vector(-1, 0)),
 			ne: new Displacement(1/36, new p5.Vector(1, -1)),
 			se: new Displacement(1/36, new p5.Vector(1, 1)),
-			sw: new Displacement(1/36, new p5.Vector(1, -1)),
+			sw: new Displacement(1/36, new p5.Vector(-1, 1)),
 			nw: new Displacement(1/36, new p5.Vector(-1, -1)),
 		}
 	}
