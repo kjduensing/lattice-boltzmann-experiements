@@ -1,8 +1,8 @@
-const gW = 10;
-const gH = 6;
+const gW = 50;
+const gH = 30;
 const grid = [];
 let cellSize;
-const flowSpeed = 0.0000;
+const flowSpeed = 0.120;
 
 let showStats = false;
 
@@ -12,7 +12,7 @@ let showStats = false;
 
 
 function setup() {
-	frameRate(50);
+	frameRate(30);
 	createCanvas(1000, 600);
 
 	for (let i = 0; i < gW; i++) {
@@ -38,7 +38,11 @@ function setup() {
 	//grid[gW/2][Math.floor(gH/2)].isBarrier = true;
 	//grid[gW/2][Math.floor(gH/2 + 1)].isBarrier = true;
 
-	//grid[6][2].isBarrier = true;
+	grid[40][13].isBarrier = true;
+	grid[40][14].isBarrier = true;
+	grid[40][15].isBarrier = true;
+	grid[40][16].isBarrier = true;
+	grid[40][17].isBarrier = true;
 }
 
 let gridMouseX = 0;
@@ -207,13 +211,13 @@ function draw() {
 			grid[i][gH-1].setEquil(createVector(flowSpeed, 0), 1);
 		}
 
-		for (let j = 0; j < gH; j++) {
+		for (let j = 1; j < gH - 1; j++) {
 			grid[0][j].setEquil(createVector(flowSpeed, 0), 1);
 			grid[gW-1][j].setEquil(createVector(flowSpeed, 0), 1);
 		}
 
 
-		for (let x = 0; x < 20; x++) {
+		for (let x = 0; x < 1; x++) {
 			// THIS IS COLLIDING
 			for (let j = 0; j < gH; j++) {
 				for (let i = 0; i < gW; i++) {
@@ -221,14 +225,15 @@ function draw() {
 				}
 			}
 
-			//for (let k = 1; k < gH - 2; k++) {
-			//grid[gW-1][k].displacements.w.density = grid[gW-2][k].displacements.w.density;
-			//grid[gW-1][k].displacements.nw.density = grid[gW-2][k].displacements.nw.density;
-			//grid[gW-1][k].displacements.sw.density = grid[gW-2][k].displacements.sw.density;
-			//}
-
 			stream();
-			//reflect();
+
+			for (let k = 1; k < gH - 2; k++) {
+				grid[gW-1][k].displacements.w.density = grid[gW-2][k].displacements.w.density;
+				grid[gW-1][k].displacements.nw.density = grid[gW-2][k].displacements.nw.density;
+				grid[gW-1][k].displacements.sw.density = grid[gW-2][k].displacements.sw.density;
+			}
+
+			reflect();
 		}
 
 	}

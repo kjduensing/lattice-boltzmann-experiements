@@ -22,7 +22,7 @@ class Site {
 	constructor(x, y) {
 		// No idea what this does, except it's the 1/T in the equations...
 		// The middle term between 3 and 0.5 is the viscosity
-		this.OMEGA = 1/(3*0.005+0.5)
+		this.OMEGA = 1/(3*.005+0.5)
 
 		this.velocity = new p5.Vector(0,0);
 		this.density = 1;
@@ -31,14 +31,14 @@ class Site {
 		this.y = y;
 		this.displacements = {
 			c: new Displacement(4/9, new p5.Vector(0, 0)),
-			n: new Displacement(1/9, new p5.Vector(0, -1)),
+			n: new Displacement(1/9, new p5.Vector(0, 1)),
 			e: new Displacement(1/9, new p5.Vector(1, 0)),
-			s: new Displacement(1/9, new p5.Vector(0, 1)),
+			s: new Displacement(1/9, new p5.Vector(0, -1)),
 			w: new Displacement(1/9, new p5.Vector(-1, 0)),
-			ne: new Displacement(1/36, new p5.Vector(1, -1)),
-			se: new Displacement(1/36, new p5.Vector(1, 1)),
-			sw: new Displacement(1/36, new p5.Vector(-1, 1)),
-			nw: new Displacement(1/36, new p5.Vector(-1, -1)),
+			ne: new Displacement(1/36, new p5.Vector(1, 1)),
+			se: new Displacement(1/36, new p5.Vector(1, -1)),
+			sw: new Displacement(1/36, new p5.Vector(-1, -1)),
+			nw: new Displacement(1/36, new p5.Vector(-1, 1)),
 		}
 	}
 
