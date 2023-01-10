@@ -1,3 +1,5 @@
+const p5 = require('./p5');
+
 class Displacement {
 	constructor(weight, allowedVelocityVector) {
 		this.weight = weight;
@@ -31,10 +33,10 @@ class Displacement {
 }
 
 class Site {
-
 	constructor(x, y) {
 		// No idea what this does, except it's the 1/T in the equations...
-		this.OMEGA = 1/(3*0.020+0.5)
+		// The middle term between 3 and 0.5 is the viscosity
+		this.OMEGA = 1/(3*0.005+0.5)
 
 		this.velocity = new p5.Vector(0,0);
 		this.density = 1;
@@ -88,24 +90,14 @@ class Site {
 			this.displacements.sw.density
 		)) / this.density;
 	}
-
-	macroFlow = () => {
-		return new p5.Vector(this.macroXVelocity(), this.macroYVelocity());
-	}
 	
-	bounce = () => {
-		Object.values(this.displacements).forEach((d) => {
-		})
-	}
-
 	collide = () => {
 		this.density = this.calcDensity();
-		this.velocity = new p5.Vector(this.macroXVelocity(), this.macroYVelocity());
+		this.velocity.set(this.macroXVelocity(), this.macroYVelocity());
 		Object.values(this.displacements).forEach((d) => {
 			const equilDensity = d.equilibrate(this.density, this.velocity);
 			d.density += this.OMEGA * (equilDensity - d.density)
 		})
-		//console.log(`collide macrox: ${this.macroXVelocity()}`)
 	}
 
 	setEquil = (velocityVector, density) => {
@@ -115,5 +107,10 @@ class Site {
 			d.density = d.equilibrate(this.density, this.velocity);
 		})
 	}
+}
+
+module.exports = {
+	Site,
+	Displacement
 }
 

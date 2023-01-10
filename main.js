@@ -1,12 +1,18 @@
-const gW = 50;
-const gH = 25;
+const gW = 10;
+const gH = 6;
 const grid = [];
 let cellSize;
-const flowSpeed = 0.120;
+const flowSpeed = 0.00;
 
 let showStats = false;
 
+/**
+ * Highlight densities on sites to track movement?
+ */
+
+
 function setup() {
+	frameRate(60);
 	createCanvas(1000, 600);
 
 	for (let i = 0; i < gW; i++) {
@@ -24,10 +30,15 @@ function setup() {
 		for (let i = 0; i < gW; i++) {
 			// setEquil takes velocity vector and density
 			// Setting an x flow between 0 and 0.120 works the best
-			//grid[i][j].setEquil(new p5.Vector(0.120, 0), 1);
-			grid[i][j].setEquil(new p5.Vector(flowSpeed, 0.00), 1);
+			grid[i][j].setEquil(new p5.Vector(flowSpeed, 0), 1);
 		}
 	}
+
+	//grid[gW/2][Math.floor(gH/2 - 1)].isBarrier = true;
+	//grid[gW/2][Math.floor(gH/2)].isBarrier = true;
+	//grid[gW/2][Math.floor(gH/2 + 1)].isBarrier = true;
+	
+	grid[gW-2][2].isBarrier = true;
 }
 
 let gridMouseX = 0;
@@ -42,10 +53,6 @@ function mouseMoved() {
 function mouseClicked() {
 	console.log(grid[gridMouseX][gridMouseY]);
 }
-
-//function mouseReleased() {
-//showStats = false;
-//}
 
 function drawArrow(base, vec, myColor) {
 	push();
@@ -73,9 +80,13 @@ function paint() {
 			const drawy = j * cellSize;
 
 			push();
-			stroke("red");
-			strokeWeight(4)
-			square(drawx, drawy, cellSize);
+			if (grid[i][j].isBarrier) {
+				stroke("green")
+				strokeWeight(4)
+				square(drawx, drawy, cellSize);
+			} else {
+				//stroke("red");
+			}
 			pop();
 
 			drawArrow(createVector(drawx + cellSize/2, drawy + cellSize/2), grid[i][j].velocity, "#f00");
@@ -84,15 +95,6 @@ function paint() {
 			translate(drawx, drawy);
 			noFill();
 			const boxSize = cellSize/3;
-			//for (let dx = 0; dx < 3; dx++) {
-			//for (let dy = 0; dy < 3; dy++) {
-			//const xpos = drawx + boxSize * dx
-			//const ypos = drawy + boxSize * dy
-
-			//square(xpos, ypos, boxSize)
-			//}
-			//}
-
 
 			// NW
 			push();
@@ -175,6 +177,23 @@ function stream() {
 	}
 }
 
+function reflect() {
+	for (let y = 1; y < gH - 1; y++) {
+		for (let x = 1; x < gW - 1; x++) {
+			if (grid[x][y].isBarrier) {
+				grid[x-1][y].displacements.w.density = grid[x][y].displacements.e.density;
+				grid[x][y-1].displacements.n.density = grid[x][y].displacements.s.density;
+				grid[x][y+1].displacements.s.density = grid[x][y].displacements.n.density;
+				grid[x+1][y].displacements.e.density = grid[x][y].displacements.w.density;
+				grid[x+1][y-1].displacements.ne.density = grid[x][y].displacements.sw.density;
+				grid[x-1][y-1].displacements.nw.density = grid[x][y].displacements.se.density;
+				grid[x+1][y+1].displacements.se.density = grid[x][y].displacements.nw.density;
+				grid[x-1][y+1].displacements.sw.density = grid[x][y].displacements.ne.density;
+			}
+		}
+	}
+}
+
 function draw() {
 	strokeWeight(0.5)
 	background(255);
@@ -192,7 +211,7 @@ function draw() {
 
 	paint();
 
-	for (let x = 0; x < 40; x++) {
+	for (let x = 0; x < 20; x++) {
 		// THIS IS COLLIDING
 		for (let j = 1; j < gH - 1; j++) {
 			for (let i = 1; i < gW - 1; i++) {
@@ -207,6 +226,7 @@ function draw() {
 		//}
 
 		stream();
+		//reflect();
 	}
 
 	textSize(16);
