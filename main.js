@@ -2,7 +2,7 @@ const gW = 10;
 const gH = 6;
 const grid = [];
 let cellSize;
-const flowSpeed = 0.00;
+const flowSpeed = 0.0000;
 
 let showStats = false;
 
@@ -12,7 +12,7 @@ let showStats = false;
 
 
 function setup() {
-	frameRate(60);
+	frameRate(50);
 	createCanvas(1000, 600);
 
 	for (let i = 0; i < gW; i++) {
@@ -26,8 +26,8 @@ function setup() {
 	cellSize = width/gW;
 
 	// Init fluid
-	for (let j = 0; j < gH; j++) {
-		for (let i = 0; i < gW; i++) {
+	for (let i = 0; i < gW; i++) {
+		for (let j = 0; j < gH; j++) {
 			// setEquil takes velocity vector and density
 			// Setting an x flow between 0 and 0.120 works the best
 			grid[i][j].setEquil(new p5.Vector(flowSpeed, 0), 1);
@@ -37,8 +37,8 @@ function setup() {
 	//grid[gW/2][Math.floor(gH/2 - 1)].isBarrier = true;
 	//grid[gW/2][Math.floor(gH/2)].isBarrier = true;
 	//grid[gW/2][Math.floor(gH/2 + 1)].isBarrier = true;
-	
-	grid[gW-2][2].isBarrier = true;
+
+	//grid[6][2].isBarrier = true;
 }
 
 let gridMouseX = 0;
@@ -198,35 +198,39 @@ function draw() {
 	strokeWeight(0.5)
 	background(255);
 
-	// Set boundaries
-	for (let i = 0; i < gW; i++) {
-		grid[i][0].setEquil(createVector(flowSpeed, 0), 1);
-		grid[i][gH-1].setEquil(createVector(flowSpeed, 0), 1);
-	}
-
-	for (let j = 0; j < gH; j++) {
-		grid[0][j].setEquil(createVector(flowSpeed, 0), 1);
-		grid[gW-1][j].setEquil(createVector(flowSpeed, 0), 1);
-	}
-
 	paint();
-
-	for (let x = 0; x < 20; x++) {
-		// THIS IS COLLIDING
-		for (let j = 1; j < gH - 1; j++) {
-			for (let i = 1; i < gW - 1; i++) {
-				grid[i][j].collide();
-			}
+	
+	if (keyIsDown(32)) { 
+		// Set boundaries
+		for (let i = 0; i < gW; i++) {
+			grid[i][0].setEquil(createVector(flowSpeed, 0), 1);
+			grid[i][gH-1].setEquil(createVector(flowSpeed, 0), 1);
 		}
 
-		//for (let k = 1; k < gH - 2; k++) {
+		for (let j = 0; j < gH; j++) {
+			grid[0][j].setEquil(createVector(flowSpeed, 0), 1);
+			grid[gW-1][j].setEquil(createVector(flowSpeed, 0), 1);
+		}
+
+
+		for (let x = 0; x < 20; x++) {
+			// THIS IS COLLIDING
+			for (let j = 0; j < gH; j++) {
+				for (let i = 0; i < gW; i++) {
+					grid[i][j].collide();
+				}
+			}
+
+			//for (let k = 1; k < gH - 2; k++) {
 			//grid[gW-1][k].displacements.w.density = grid[gW-2][k].displacements.w.density;
 			//grid[gW-1][k].displacements.nw.density = grid[gW-2][k].displacements.nw.density;
 			//grid[gW-1][k].displacements.sw.density = grid[gW-2][k].displacements.sw.density;
-		//}
+			//}
 
-		stream();
-		//reflect();
+			stream();
+			//reflect();
+		}
+
 	}
 
 	textSize(16);
@@ -235,11 +239,10 @@ function draw() {
 	text(`Density: ${grid[gridMouseX][gridMouseY].density.toFixed(4)}`, 10 + 10, 10 + 40)
 	text(`Velocity (X): ${grid[gridMouseX][gridMouseY].velocity.x.toFixed(4)}`, 10 + 10, 10 + 60)
 	text(`Velocity (Y): ${grid[gridMouseX][gridMouseY].velocity.y.toFixed(4)}`, 10 + 10, 10 + 80)
-
 	//let dString = [];
 	//for(let d in grid[gridMouseX][gridMouseY].displacements) {
-		//console.log(d);
-		//dString.push(`${d}: ${grid[gridMouseX][gridMouseY].displacements[d].toFixed(4)}`);
+	//console.log(d);
+	//dString.push(`${d}: ${grid[gridMouseX][gridMouseY].displacements[d].toFixed(4)}`);
 	//}
 
 	//text(`Densities: { ${dString.join(",")} }`, 10 + 10, 10 + 100);

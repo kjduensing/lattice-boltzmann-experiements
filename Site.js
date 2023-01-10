@@ -1,25 +1,11 @@
-const p5 = require('./p5');
-
 class Displacement {
 	constructor(weight, allowedVelocityVector) {
 		this.weight = weight;
-		this.density = 1;
+		this.density = weight;
 		this.velocity = allowedVelocityVector;
 	}
 
 	equilibrate = (macroDensity, macroVelocity) => {
-
-		//const a = macroDensity * this.weight;
-		//const b = 1 + this.velocity.copy().mult(3).dot(macroVelocity);
-		//const c = (9/2) * Math.pow(this.velocity.copy().dot(macroVelocity), 2);
-		//const d = (3/2) * macroVelocity.magSq();
-
-		//console.log(a)
-		//console.log(b)
-		//console.log(c)
-		//console.log(d)
-		//console.log()
-
 		const equilibriumDensity = 
 			macroDensity * this.weight * 
 			(
