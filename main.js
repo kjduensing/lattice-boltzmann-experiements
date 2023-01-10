@@ -1,5 +1,5 @@
-const gW = 50;
-const gH = 30;
+const gW = 100;
+const gH = 60;
 const grid = [];
 let cellSize;
 const flowSpeed = 0.120;
@@ -12,7 +12,7 @@ let showStats = false;
 
 
 function setup() {
-	frameRate(30);
+	frameRate(60);
 	createCanvas(1000, 600);
 
 	for (let i = 0; i < gW; i++) {
@@ -33,16 +33,6 @@ function setup() {
 			grid[i][j].setEquil(new p5.Vector(flowSpeed, 0), 1);
 		}
 	}
-
-	//grid[gW/2][Math.floor(gH/2 - 1)].isBarrier = true;
-	//grid[gW/2][Math.floor(gH/2)].isBarrier = true;
-	//grid[gW/2][Math.floor(gH/2 + 1)].isBarrier = true;
-
-	grid[40][13].isBarrier = true;
-	grid[40][14].isBarrier = true;
-	grid[40][15].isBarrier = true;
-	grid[40][16].isBarrier = true;
-	grid[40][17].isBarrier = true;
 }
 
 let gridMouseX = 0;
@@ -56,6 +46,13 @@ function mouseMoved() {
 
 function mouseClicked() {
 	console.log(grid[gridMouseX][gridMouseY]);
+}
+
+function mouseDragged() {
+	gridMouseX = Math.floor(map(mouseX, 0, width, 0, gW));
+	gridMouseY = Math.floor(map(mouseY, 0, height, 0, gH));
+
+	grid[gridMouseX][gridMouseY].isBarrier = true;
 }
 
 function drawArrow(base, vec, myColor) {
@@ -73,8 +70,37 @@ function drawArrow(base, vec, myColor) {
 	pop();
 }
 
-function mapColor(density) {
-	return  map(density, 0, 3, 255, 0);
+function mapColor(val) {
+	//return map(val, 0, 0.120, 255, 100);
+	return map(val, 0.5, 1.5, 50, 255);
+}
+
+function paintSpeed() {
+	for (let i = 0; i < gW; i++) {
+		for (let j = 0; j < gH; j++) {
+			const drawx = i * cellSize;
+			const drawy = j * cellSize;
+
+			noStroke()
+			//fill(mapColor(grid[i][j].velocity.magSq()))
+			fill(mapColor(grid[i][j].density))
+			square(drawx, drawy, cellSize);
+		}
+	}
+}
+
+function paintBarrier() {
+	for (let i = 0; i < gW; i++) {
+		for (let j = 0; j < gH; j++) {
+			const drawx = i * cellSize;
+			const drawy = j * cellSize;
+
+			if (grid[i][j].isBarrier) {
+				fill("black")
+				square(drawx, drawy, cellSize);
+			}
+		}
+	}
 }
 
 function paint() {
@@ -202,9 +228,14 @@ function draw() {
 	strokeWeight(0.5)
 	background(255);
 
-	paint();
+	push();
+	paintSpeed();
+	pop();
+	push()
+	paintBarrier();
+	pop()
 	
-	if (keyIsDown(32)) { 
+	if (!keyIsDown(32)) { 
 		// Set boundaries
 		for (let i = 0; i < gW; i++) {
 			grid[i][0].setEquil(createVector(flowSpeed, 0), 1);
@@ -238,6 +269,7 @@ function draw() {
 
 	}
 
+	fill(0);
 	textSize(16);
 	text(`[${gridMouseX}, ${gridMouseY}]:`, 10, 10)
 	text(`Omega: ${grid[gridMouseX][gridMouseY].OMEGA.toFixed(4)}`, 10 + 10, 10 + 20)
