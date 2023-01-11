@@ -24,6 +24,7 @@ class Site {
 		// The middle term between 3 and 0.5 is the viscosity
 		this.OMEGA = 1/(3*.005+0.5)
 
+		this.curl = 0;
 		this.velocity = new p5.Vector(0,0);
 		this.density = 1;
 		this.isBarrier = false;

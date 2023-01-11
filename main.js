@@ -1,19 +1,18 @@
-const gW = 100;
-const gH = 60;
+const gW = 500;
+const gH = 10;
 const grid = [];
 let cellSize;
-const flowSpeed = 0.120;
+const flowSpeed = 0.000;
 
 let showStats = false;
 
-/**
- * Highlight densities on sites to track movement?
- */
+const sizeFactor = 10;
 
+const barrierLine = [];
 
 function setup() {
 	frameRate(60);
-	createCanvas(1000, 600);
+	createCanvas(gW*sizeFactor, gH*sizeFactor);
 
 	for (let i = 0; i < gW; i++) {
 		const col = [];
@@ -33,6 +32,12 @@ function setup() {
 			grid[i][j].setEquil(new p5.Vector(flowSpeed, 0), 1);
 		}
 	}
+
+	barrierLine.push(grid[20][3]);
+	barrierLine.push(grid[20][4]);
+	barrierLine.push(grid[20][5]);
+	barrierLine.push(grid[20][6]);
+	barrierLine.push(grid[20][7]);
 }
 
 let gridMouseX = 0;
@@ -52,7 +57,12 @@ function mouseDragged() {
 	gridMouseX = Math.floor(map(mouseX, 0, width, 0, gW));
 	gridMouseY = Math.floor(map(mouseY, 0, height, 0, gH));
 
-	grid[gridMouseX][gridMouseY].isBarrier = true;
+	//grid[gridMouseX][gridMouseY].isBarrier = true;
+
+	for (let b = 0; b < barrierLine.length; b++) {
+		barrierLine[b] = grid[gridMouseX][b + 3];
+		barrierLine[b].setEquil(new p5.Vector(0.120, 0), 2)
+	}
 }
 
 function drawArrow(base, vec, myColor) {
@@ -72,7 +82,20 @@ function drawArrow(base, vec, myColor) {
 
 function mapColor(val) {
 	//return map(val, 0, 0.120, 255, 100);
-	return map(val, 0.5, 1.5, 50, 255);
+	return map(val, 0.05, 1.5, 255, 0);
+	//return map(val, -0.05, 0.120, 255, 5);
+}
+
+function computeCurl() {
+	for (let y = 1; y < gH - 1; y++) {
+		for (let x = 1; x < gW - 1; x++) {
+			grid[x][y].curl = 
+				grid[x+1][y].velocity.y -
+				grid[x-1][y].velocity.y -
+				grid[x][y+1].velocity.x +
+				grid[x][y-1].velocity.x;
+		}
+	}
 }
 
 function paintSpeed() {
@@ -99,6 +122,19 @@ function paintBarrier() {
 				fill("black")
 				square(drawx, drawy, cellSize);
 			}
+		}
+	}
+}
+
+function paintCurl() {
+	for (let i = 0; i < gW; i++) {
+		for (let j = 0; j < gH; j++) {
+			const drawx = i * cellSize;
+			const drawy = j * cellSize;
+
+			noStroke();
+			fill(mapColor(grid[i][j].curl));
+			square(drawx, drawy, cellSize);
 		}
 	}
 }
@@ -225,11 +261,14 @@ function reflect() {
 }
 
 function draw() {
-	strokeWeight(0.5)
+	//strokeWeight(0.5)
 	background(255);
+
+	computeCurl();
 
 	push();
 	paintSpeed();
+	//paintCurl();
 	pop();
 	push()
 	paintBarrier();
@@ -248,7 +287,7 @@ function draw() {
 		}
 
 
-		for (let x = 0; x < 1; x++) {
+		for (let x = 0; x < 10; x++) {
 			// THIS IS COLLIDING
 			for (let j = 0; j < gH; j++) {
 				for (let i = 0; i < gW; i++) {
@@ -256,14 +295,13 @@ function draw() {
 				}
 			}
 
-			stream();
-
 			for (let k = 1; k < gH - 2; k++) {
 				grid[gW-1][k].displacements.w.density = grid[gW-2][k].displacements.w.density;
 				grid[gW-1][k].displacements.nw.density = grid[gW-2][k].displacements.nw.density;
 				grid[gW-1][k].displacements.sw.density = grid[gW-2][k].displacements.sw.density;
 			}
 
+			stream();
 			reflect();
 		}
 
@@ -276,11 +314,4 @@ function draw() {
 	text(`Density: ${grid[gridMouseX][gridMouseY].density.toFixed(4)}`, 10 + 10, 10 + 40)
 	text(`Velocity (X): ${grid[gridMouseX][gridMouseY].velocity.x.toFixed(4)}`, 10 + 10, 10 + 60)
 	text(`Velocity (Y): ${grid[gridMouseX][gridMouseY].velocity.y.toFixed(4)}`, 10 + 10, 10 + 80)
-	//let dString = [];
-	//for(let d in grid[gridMouseX][gridMouseY].displacements) {
-	//console.log(d);
-	//dString.push(`${d}: ${grid[gridMouseX][gridMouseY].displacements[d].toFixed(4)}`);
-	//}
-
-	//text(`Densities: { ${dString.join(",")} }`, 10 + 10, 10 + 100);
 }
